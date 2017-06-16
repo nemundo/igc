@@ -1,0 +1,20 @@
+{
+  "name": "nemundo/igc",
+  "description": "Igc Track",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Urs Lang",
+      "email": "urs.lang@gmail.com"
+    }
+  ],
+  "require": {
+    "nemundo/core": "^0.0.1",
+    "nemundo/geo": "^0.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Nemundo\\Igc\\": "src/"
+    }
+  }
+}
