@@ -10,7 +10,7 @@
   ],
   "require": {
     "nemundo/core": "^0.0.1",
-    "nemundo/geo": "^0.0.1"
+    "nemundo/geo": "^0.0.2"
   },
   "autoload": {
     "psr-4": {
