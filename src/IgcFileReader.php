@@ -54,34 +54,34 @@ class IgcFileReader extends AbstractDataSource
 
             // Date
             if ($line->containsLeft('HFDTE')) {
-                $dateText = '20' . $line->substring(9, 2) . '-' . $line->substring(7, 2) . '-' . $line->substring(5, 2);
+                $dateText = '20' . $line->getSubstring(9, 2) . '-' . $line->getSubstring(7, 2) . '-' . $line->getSubstring(5, 2);
                 $this->date = new Date($dateText);
             }
 
             // Flight Track
             if ($item[0] == 'B') {
 
-                $hour = $line->substring(1, 2);
-                $minute = $line->substring(3, 2);
-                $second = $line->substring(5, 2);
+                $hour = $line->getSubstring(1, 2);
+                $minute = $line->getSubstring(3, 2);
+                $second = $line->getSubstring(5, 2);
 
                 $time = new Time($hour . ':' . $minute . ':' . $second);
 
                 $coordinate = new DegreeMinuteSecondCoordinate();
 
                 // Lat
-                $coordinate->lat->degree = $line->substring(7, 2);
-                $coordinate->lat->minute = $line->substring(9, 2) . '.' . $line->substring(11, 3);
-                $coordinate->lat->direction = $line->substring(14, 1);
+                $coordinate->lat->degree = $line->getSubstring(7, 2);
+                $coordinate->lat->minute = $line->getSubstring(9, 2) . '.' . $line->getSubstring(11, 3);
+                $coordinate->lat->direction = $line->getSubstring(14, 1);
 
                 // Lon
-                $coordinate->lon->degree = $line->substring(15, 3);
-                $coordinate->lon->minute = $line->substring(18, 2) . '.' . $line->substring(20, 3);
-                $coordinate->lon->direction = $line->substring(23, 1);
+                $coordinate->lon->degree = $line->getSubstring(15, 3);
+                $coordinate->lon->minute = $line->getSubstring(18, 2) . '.' . $line->getSubstring(20, 3);
+                $coordinate->lon->direction = $line->getSubstring(23, 1);
 
                 // Altitude
-                $altitudeBarometer = $line->substring(25, 5) * 1;
-                $altitudeGps = $line->substring(30, 5) * 1;
+                $altitudeBarometer = $line->getSubstring(25, 5) * 1;
+                $altitudeGps = $line->getSubstring(30, 5) * 1;
 
 
                 $igc = new IgcCoordinate();
