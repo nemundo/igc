@@ -16,6 +16,8 @@ use Nemundo\Geo\Coordinate\DegreeMinuteSecond\DegreeMinuteSecondCoordinate;
  * http://carrier.csi.cam.ac.uk/forsterlewis/soaring/igc_file_format/
  *
  */
+
+// IgcReader
 class IgcFileReader extends AbstractDataSource
 {
 
@@ -47,6 +49,8 @@ class IgcFileReader extends AbstractDataSource
 
         $textFile = new TextFileReader();
         $textFile->filename = $this->filename;
+
+        $altitudePrevious = null;
 
         foreach ($textFile->getData() as $item) {
 
@@ -83,12 +87,19 @@ class IgcFileReader extends AbstractDataSource
                 $altitudeBarometer = $line->getSubstring(25, 5) * 1;
                 $altitudeGps = $line->getSubstring(30, 5) * 1;
 
+                $verticalDistance = 0;
+                if ($altitudePrevious !== null) {
+                    $verticalDistance = $altitudeGps-$altitudePrevious;
+                }
+
+                $altitudePrevious = $altitudeGps;
 
                 $igc = new IgcCoordinate();
                 $igc->time = $time;
                 $igc->geoCoordinate = $coordinate->getGeoCoordinate();
                 $igc->altitudeGps = $altitudeGps;
                 $igc->altitudeBarometer = $altitudeBarometer;
+                $igc->verticalDistance = $verticalDistance;
 
                 $this->addItem($igc);
 

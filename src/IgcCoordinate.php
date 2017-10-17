@@ -30,10 +30,16 @@ class IgcCoordinate
      */
     public $altitudeBarometer;
 
+    /**
+     * @var int
+     */
+    public $verticalDistance;
 
-    //public $speedVertical;
+    /**
+     * @var int
+     */
+    public $horizontalDistance;
 
-    //public $speedHorizontal;
 
 
 }
