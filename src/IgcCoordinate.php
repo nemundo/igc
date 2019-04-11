@@ -2,12 +2,12 @@
 
 namespace Nemundo\Igc;
 
+use Nemundo\Core\Base\AbstractBase;
+use Nemundo\Core\Type\DateTime\Time;
+use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 
-use Nemundo\Core\Type\GeoCoordinate;
-use Nemundo\Core\Type\Time;
 
-
-class IgcCoordinate
+class IgcCoordinate extends AbstractBase
 {
 
     /**
@@ -16,7 +16,7 @@ class IgcCoordinate
     public $time;
 
     /**
-     * @var GeoCoordinate
+     * @var GeoCoordinateAltitude
      */
     public $geoCoordinate;
 
@@ -36,10 +36,14 @@ class IgcCoordinate
     public $verticalDistance;
 
     /**
+     * @var float
+     */
+    public $verticalSpeed;
+
+    /**
      * @var int
      */
     public $horizontalDistance;
-
 
 
 }
