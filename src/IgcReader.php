@@ -5,8 +5,8 @@ namespace Nemundo\Igc;
 use Nemundo\Core\Base\DataSource\AbstractDataSource;
 use Nemundo\Core\Date\DateTimeDifference;
 use Nemundo\Core\Debug\Debug;
-use Nemundo\Core\File\TextFileReader;
 use Nemundo\Core\Log\LogMessage;
+use Nemundo\Core\TextFile\Reader\TextFileReader;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\DateTime\Time;
 use Nemundo\Core\Type\File\File;
@@ -71,16 +71,13 @@ class IgcReader extends AbstractDataSource
     protected function loadData()
     {
 
-        //(new Debug())->write($this->filename);
-
         $this->loaded = true;
         $count = 0;
 
         $file = new File($this->filename);
         if ($file->exists()) {
 
-            $textFile = new TextFileReader();
-            $textFile->filename = $this->filename;
+            $textFile = new TextFileReader($this->filename);
 
             $altitudePrevious = null;
 
