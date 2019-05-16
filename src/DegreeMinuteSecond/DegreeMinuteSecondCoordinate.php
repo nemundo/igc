@@ -41,6 +41,7 @@ class DegreeMinuteSecondCoordinate extends AbstractBase
 
         $geoCoordinate = new GeoCoordinate();
 
+
         if (!is_numeric($this->lat->degree) || !is_numeric($this->lat->minute) || !is_numeric($this->lat->second)) {
 
             (new LogMessage())->writeError('DegreeMinuteSecondCoordinate No valid Number.');
@@ -54,18 +55,15 @@ class DegreeMinuteSecondCoordinate extends AbstractBase
         }
 
 
-        // lat
         $lat = $this->lat->degree + ($this->lat->minute / 60) + ($this->lat->second / 3600);
         if ($this->lat->direction == 'S') {
             $lat = $lat * -1;
         }
 
-        // lon
         $lon = $this->lon->degree + ($this->lon->minute / 60) + ($this->lon->second / 3600);
         if ($this->lon->direction == 'W') {
             $lon = $lon * -1;
         }
-
 
         $geoCoordinate->latitude = $lat;
         $geoCoordinate->longitude = $lon;
