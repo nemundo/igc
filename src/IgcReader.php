@@ -2,24 +2,21 @@
 
 namespace Nemundo\Igc;
 
-use Nemundo\Core\Base\DataSource\AbstractDataSource;
-use Nemundo\Core\Date\DateTimeDifference;
-use Nemundo\Core\Debug\Debug;
+use Nemundo\Core\Base\AbstractBase;
 use Nemundo\Core\Log\LogMessage;
-use Nemundo\Core\TextFile\Reader\TextFileReader;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\DateTime\Time;
-use Nemundo\Core\Type\File\File;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Core\Type\Text\Text;
-use Nemundo\Igc\DegreeMinuteSecond\DegreeMinuteSecondCoordinate;
 
 /**
  *
  * http://vali.fai-civl.org/documents/IGC-Spec_v1.00.pdf
  *
  */
-class IgcReader extends AbstractDataSource
+// IgcCoordinateReader
+
+class IgcReader extends AbstractBase  // AbstractDataSource
 {
 
     /**
@@ -58,185 +55,220 @@ class IgcReader extends AbstractDataSource
      */
     private $filename;
 
+    //private $line;
+
+    /**
+     * @var GeoCoordinateAltitude[]
+     */
+    private $list = [];
+
+
+    private $lineList = [];
+
 
     public function __construct($filename)
     {
 
-        $this->filename = $filename;
-        $this->loadData();
 
-    }
-
-
-    protected function loadData()
-    {
-
-        $this->loaded = true;
         $count = 0;
 
-        $file = new File($this->filename);
-        if ($file->exists()) {
+        //$textFile = new TextFileReader($this->filename);
 
-            $textFile = new TextFileReader($this->filename);
 
-            $altitudePrevious = null;
+        $content = '';
 
-            /** @var Time $timePrevious */
-            $timePrevious = null;
+        $file = fopen($filename, 'r');
+        while (($line = fgets($file)) !== false) {
 
-            foreach ($textFile->getData() as $item) {
 
-                $line = new Text($item);
+            $this->lineList[] = $line;
 
-                // Date
-                // HFDTEDATE:070518,01
-                if ($line->containsLeft('HFDTEDATE:')) {
-                    $dateText = '20' . $line->getSubstring(14, 2) . '-' . $line->getSubstring(12, 2) . '-' . $line->getSubstring(10, 2);
-                    $this->date = new Date($dateText);
-                }
+            // Flight Track
+            if ($line[0] == 'B') {
 
-                if ($line->containsLeft('HFDTE')) {
-                    if (is_null($this->date)) {
-                        $dateText = '20' . $line->getSubstring(9, 2) . '-' . $line->getSubstring(7, 2) . '-' . $line->getSubstring(5, 2);
-                        $this->date = new Date($dateText);
+                /*$hour = (int)substr($line,1, 2);
+                $minute = (int)substr($line,3, 2);
+                $second = (int)substr($line,5, 2);
+
+                $time = new Time($hour . ':' . $minute . ':' . $second);*/
+
+                //$degreeCoordinate = new DegreeMinuteSecondCoordinate();
+
+                $latDegree = substr($line, 7, 2);
+                $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
+                $latDirection = substr($line, 14, 1);
+
+                $lonDegree = substr($line, 15, 3);
+                $lonMinute = substr($line, 18, 2) . '.' . substr($line, 20, 3);
+                $lonDirection = substr($line, 23, 1);
+
+
+                if (is_numeric($latDegree) && is_numeric($latMinute) && is_numeric($lonDegree) && is_numeric($lonMinute)) {
+
+
+                    $lat = $latDegree + ($latMinute / 60);
+                    if ($latDirection == 'S') {
+                        $lat = $lat * -1;
                     }
-                }
+                    $lat = round($lat, 5);
 
 
-                // Flight Track
-                if ($item[0] == 'B') {
-
-                    $hour = (int)$line->getSubstring(1, 2);
-                    $minute = (int)$line->getSubstring(3, 2);
-                    $second = (int)$line->getSubstring(5, 2);
-
-
-                    if (!is_numeric($second) || !is_numeric($minute) || !is_numeric($second)) {
-                        (new LogMessage())->writeError('Igc Reader No valid Number. Filename: ' . $this->filename);
-
-                        (new Debug())->write($item);
-
-                        (new Debug())->write($hour);
-                        (new Debug())->write($minute);
-                        (new Debug())->write($second);
-                        exit;
-
+                    $lon = $lonDegree + ($lonMinute / 60);
+                    if ($lonDirection == 'W') {
+                        $lon = $lon * -1;
                     }
+                    $lon = round($lon, 5);
+
+                    $altitudeGps = substr($line, 30, 5) * 1;
+
+                    $content .= $lon . ',' . $lat . ',' . $altitudeGps . PHP_EOL;
 
 
-                    $time = new Time($hour . ':' . $minute . ':' . $second);
+                    $coordinate = new GeoCoordinateAltitude();
+                    $coordinate->latitude = $lat;
+                    $coordinate->longitude = $lon;
+                    $coordinate->altitude = $altitudeGps;
+                    $this->list[] = $coordinate;
 
-                    $degreeCoordinate = new DegreeMinuteSecondCoordinate();
-
-                    // Lat
-                    $degreeCoordinate->lat->degree = $line->getSubstring(7, 2);
-                    $degreeCoordinate->lat->minute = $line->getSubstring(9, 2) . '.' . $line->getSubstring(11, 3);
-                    $degreeCoordinate->lat->direction = $line->getSubstring(14, 1);
-
-                    // Lon
-                    $degreeCoordinate->lon->degree = $line->getSubstring(15, 3);
-                    $degreeCoordinate->lon->minute = $line->getSubstring(18, 2) . '.' . $line->getSubstring(20, 3);
-                    $degreeCoordinate->lon->direction = $line->getSubstring(23, 1);
-
-                    $coordinate = $degreeCoordinate->getGeoCoordinate();
-
-                    // Altitude
-                    $altitudeBarometer = $line->getSubstring(25, 5) * 1;
-                    $altitudeGps = $line->getSubstring(30, 5) * 1;
-
-                    if ($altitudeGps <> 0) {
-
-                        if (($coordinate->latitude != 0) && ($coordinate->longitude != 0)) {
-
-                            $verticalDistance = 0;
-                            if ($altitudePrevious !== null) {
-                                $verticalDistance = $altitudeGps - $altitudePrevious;
-                            }
-
-                            $second = 0;
-                            if ($timePrevious !== null) {
-                                $second = $time->getTimestamp() - $timePrevious->getTimestamp();
-                            }
-
-                            $verticalSpeed = 0;
-                            if ($second !== 0) {
-                                $verticalSpeed = $verticalDistance / $second;
-                            }
-
-
-                            /* if ($verticalSpeed < -10) {
-                                 (new Debug())->write($verticalSpeed);
-                             }*/
-
-                            if (($verticalSpeed < 15) && ($verticalSpeed > -15)) {
-
-                                $altitudePrevious = $altitudeGps;
-                                $timePrevious = $time;
-
-
-                                $geoCoordinate = new GeoCoordinateAltitude();
-                                $geoCoordinate->latitude = $coordinate->latitude;
-                                $geoCoordinate->longitude = $coordinate->longitude;
-                                $geoCoordinate->altitude = $altitudeGps;
-
-                                $igc = new IgcCoordinate();
-                                $igc->time = $time;
-                                $igc->geoCoordinate = $geoCoordinate;
-                                $igc->altitudeGps = $altitudeGps;
-                                $igc->altitudeBarometer = $altitudeBarometer;
-                                $igc->verticalDistance = $verticalDistance;
-                                $igc->verticalSpeed = $verticalSpeed;
-
-                                $this->addItem($igc);
-
-
-                                if ($count == 0) {
-                                    $this->takeoffGeoCoordinate = $geoCoordinate;
-                                    $this->takeoffTime = $time;
-                                }
-                                $count++;
-
-                                $this->landingGeoCoordinate = $geoCoordinate;
-                                $this->landingTime = $time;
-
-                            }
-
-
-                        }
-                    }
-
+                } else {
+                    (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $filename);
                 }
 
             }
 
-
-            if ($this->date == null) {
-                (new LogMessage())->writeError('Igc Reader Date is Null. Filename: ' . $this->filename);
-            }
-
-
-            $diff = new DateTimeDifference();
-            $diff->dateFrom = $this->takeoffTime;
-            $diff->dateUntil = $this->landingTime;
-
-            // Problem mit
-            //$this->airtimeMinute = $diff->getDifferenceInMinute();
-
-        } else {
-            (new LogMessage())->writeError('Igc File not found. Filename: ' . $this->filename);
         }
 
+        fclose($file);
+
+
+        /*
+        $filenameCoordinate = str_replace('.igc','.txt', $filename);
+
+        $file = fopen($filenameCoordinate,'w');
+        fwrite($file, $content);
+        fclose($file);
+*/
+
 
     }
 
 
-    /**
-     * @return IgcCoordinate[]
-     */
-    public function getData()
+    public function getDate()
     {
-        return parent::getData();
+
+        $date = new Date();
+
+        foreach ($this->lineList as $line) {
+
+            //(new Debug())->write($line);
+
+            $lineText = new Text($line);
+
+            if ($lineText->containsLeft('HFDTEDATE:')) {
+                $dateText = '20' . $lineText->getSubstring(14, 2) . '-' . $lineText->getSubstring(12, 2) . '-' . $lineText->getSubstring(10, 2);
+                $this->date = new Date($dateText);
+            }
+
+            if ($lineText->containsLeft('HFDTE')) {
+                //if ($date->isNull()) {
+                $dateText = '20' . $lineText->getSubstring(9, 2) . '-' . $lineText->getSubstring(7, 2) . '-' . $lineText->getSubstring(5, 2);
+                $date = new Date($dateText);
+                //}
+            }
+
+        }
+
+        return $date;
+
     }
+
+
+    public function getGeoCoordinateList()
+    {
+
+        return $this->list;
+
+    }
+
+
+    // getKml
+    public function getCoordinateContent()
+    {
+
+
+        $content = '';
+
+        foreach ($this->lineList as $line) {
+
+            // Flight Track
+            if ($line[0] == 'B') {
+
+                /*$hour = (int)substr($line,1, 2);
+                $minute = (int)substr($line,3, 2);
+                $second = (int)substr($line,5, 2);
+
+                $time = new Time($hour . ':' . $minute . ':' . $second);*/
+
+                //$degreeCoordinate = new DegreeMinuteSecondCoordinate();
+
+                $latDegree = substr($line, 7, 2);
+                $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
+                $latDirection = substr($line, 14, 1);
+
+                $lonDegree = substr($line, 15, 3);
+                $lonMinute = substr($line, 18, 2) . '.' . substr($line, 20, 3);
+                $lonDirection = substr($line, 23, 1);
+
+                $lat = $latDegree + ($latMinute / 60);
+                if ($latDirection == 'S') {
+                    $lat = $lat * -1;
+                }
+                $lat = round($lat, 5);
+
+
+                $lon = $lonDegree + ($lonMinute / 60);
+                if ($lonDirection == 'W') {
+                    $lon = $lon * -1;
+                }
+                $lon = round($lon, 5);
+
+                $altitudeGps = substr($line, 30, 5) * 1;
+
+                $content .= $lon . ',' . $lat . ',' . $altitudeGps . PHP_EOL;
+
+
+                /*
+                $coordinate = new GeoCoordinateAltitude();
+                $coordinate->latitude = $lat;
+                $coordinate->longitude = $lon;
+                $coordinate->altitude = $altitudeGps;
+                $this->list[]= $coordinate;*/
+
+            }
+
+        }
+
+        return $content;
+
+    }
+
+
+    /*
+    private function getSubstring($start, $length)
+    {
+
+        //$substring=   substr($this->line, $start,$length);
+
+        $max = $start + $length;
+
+        $substring = '';
+        for ($n = $start; $n < $max; $n++) {
+            $substring = $substring. $this->line[$n];
+        }
+
+        return $substring;
+
+    }*/
 
 
 }
