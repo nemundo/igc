@@ -3,6 +3,7 @@
 namespace Nemundo\Igc;
 
 use Nemundo\Core\Base\AbstractBase;
+use Nemundo\Core\Debug\Debug;
 use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\DateTime\Time;
@@ -70,6 +71,9 @@ class IgcReader extends AbstractBase  // AbstractDataSource
     {
 
 
+        // Check File Exists
+
+
         $count = 0;
 
         //$textFile = new TextFileReader($this->filename);
@@ -131,8 +135,25 @@ class IgcReader extends AbstractBase  // AbstractDataSource
                     $this->list[] = $coordinate;
 
                 } else {
+
+
+                    /*
                     (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $filename);
-                }
+                    (new Debug())->write($line);
+
+
+                    (new Debug())->write($latDegree);
+                    (new Debug())->write($latMinute);
+                    (new Debug())->write($lonDegree);
+                    (new Debug())->write($lonMinute);
+                    (new Debug())->write();
+                    (new Debug())->write();
+                    (new Debug())->write();*/
+
+
+
+
+                    }
 
             }
 
