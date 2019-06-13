@@ -75,9 +75,9 @@ abstract class AbstractIgcReader extends AbstractBase  // AbstractDataSource
 
             //  HFPLTPILOT:Andreas NYFFENEGGER
 
-
-            if ($lineText->containsLeft('HFPLTPILOT:')) {
-                $this->pilot = $lineText->getSubstring(11);
+            $value = $this->getValue($line, 'HFPLTPILOT:');
+            if ($value !== null) {
+                $this->pilot = $value;
             }
 
         }
@@ -87,18 +87,15 @@ abstract class AbstractIgcReader extends AbstractBase  // AbstractDataSource
     }
 
 
-    protected function getValue($line, $key) {
+    protected function getValue($line, $key)
+    {
 
-
-        if (strpos($key, $line) === 0) {
-            $found = true;
+        $value = null;
+        if (strpos($line,$key) === 0) {
+            $value = substr($line, strlen($key));
         }
 
-        if ($lineText->containsLeft($key)) {
-            $this->pilot = $lineText->getSubstring(11);
-        }
-
-
+        return $value;
 
     }
 
