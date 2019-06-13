@@ -6,6 +6,8 @@ $performance = new \Nemundo\App\Performance\PerformanceStopwatch('Igc');
 
 $filename = __DIR__.'/igc/190331_NKN_01.igc';
 
+
+
 $reader = new \Nemundo\Igc\IgcReader($filename);
 
 

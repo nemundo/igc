@@ -51,6 +51,20 @@ class IgcReader extends AbstractBase  // AbstractDataSource
      */
     public $landingGeoCoordinate;
 
+
+    //public $removeCorruptPoint = true;
+
+    //public $verticalRemoveLimit = 10;
+
+
+    public $coordinateCount = 0;
+
+
+    public $validCoordinateCount = 0;
+
+    public $invalidCoordinateCount = 0;
+
+
     /**
      * @var string
      */
@@ -71,6 +85,9 @@ class IgcReader extends AbstractBase  // AbstractDataSource
     {
 
 
+        $removeLimit = 10;
+
+
         // Check File Exists
 
 
@@ -78,6 +95,10 @@ class IgcReader extends AbstractBase  // AbstractDataSource
 
         //$textFile = new TextFileReader($this->filename);
 
+        $altitudePrevious = null;
+
+        /** @var \DateTime $timePrevious */
+        $timePrevious = null;
 
         $content = '';
 
@@ -95,7 +116,6 @@ class IgcReader extends AbstractBase  // AbstractDataSource
                 $second = (int)substr($line,5, 2);
 
                 $time = new Time($hour . ':' . $minute . ':' . $second);*/
-
                 //$degreeCoordinate = new DegreeMinuteSecondCoordinate();
 
                 $latDegree = substr($line, 7, 2);
@@ -125,21 +145,81 @@ class IgcReader extends AbstractBase  // AbstractDataSource
 
                     $altitudeGps = substr($line, 30, 5) * 1;
 
-                    $content .= $lon . ',' . $lat . ',' . $altitudeGps . PHP_EOL;
+
+//                    $this->list[] = $coordinate;
 
 
-                    $coordinate = new GeoCoordinateAltitude();
-                    $coordinate->latitude = $lat;
-                    $coordinate->longitude = $lon;
-                    $coordinate->altitude = $altitudeGps;
-                    $this->list[] = $coordinate;
+                    $hour = (int)substr($line, 1, 2);
+                    $minute = (int)substr($line, 3, 2);
+                    $second = (int)substr($line, 5, 2);
+
+                    $time = new \DateTime($hour . ':' . $minute . ':' . $second);
+
+                    $verticalDistance = 0;
+                    if ($altitudePrevious !== null) {
+                        $verticalDistance = $altitudeGps - $altitudePrevious;
+                    }
+
+                    $second = 0;
+                    if ($timePrevious !== null) {
+                        $second = $time->getTimestamp() - $timePrevious->getTimestamp();
+                    }
+
+                    $verticalSpeed = 0;
+                    if ($second !== 0) {
+                        $verticalSpeed = $verticalDistance / $second;
+                    }
+
+/*
+                    if ($verticalSpeed > 10) {
+                        //    (new Debug())->write($verticalSpeed);
+                    }
+
+
+                    if ($verticalSpeed < -15) {
+
+                        //(new Debug())->write($verticalSpeed);
+                    }*/
+
+
+                    if (($verticalSpeed < $removeLimit) && ($verticalSpeed > ($removeLimit * -1))) {
+                        //if (($this->verticalRemoveLimit < 15) && ($verticalSpeed > -15)) {
+
+
+                        $content .= $lon . ',' . $lat . ',' . $altitudeGps . PHP_EOL;
+
+                        $coordinate = new GeoCoordinateAltitude();
+                        $coordinate->latitude = $lat;
+                        $coordinate->longitude = $lon;
+                        $coordinate->altitude = $altitudeGps;
+
+                        $this->list[] = $coordinate;
+
+                        $altitudePrevious = $altitudeGps;
+                        $timePrevious = $time;
+
+                        $this->validCoordinateCount++;
+
+                    } else {
+                        //(new Debug())->write($verticalSpeed);
+                        $this->invalidCoordinateCount++;
+                    }
+
+                    $this->coordinateCount++;
+
+
+                    //$altitudePrevious = $altitudeGps;
+                    //$timePrevious = $time;
+
 
                 } else {
 
 
-                    /*
+
                     (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $filename);
-                    (new Debug())->write($line);
+
+
+                    /*(new Debug())->write($line);
 
 
                     (new Debug())->write($latDegree);
@@ -151,9 +231,8 @@ class IgcReader extends AbstractBase  // AbstractDataSource
                     (new Debug())->write();*/
 
 
+                }
 
-
-                    }
 
             }
 
