@@ -3,7 +3,7 @@
 namespace Nemundo\Igc\Reader;
 
 
-class RawIgcReader extends AbstractIgcReader
+class RawIgcReader extends AbstractRawIgcReader
 {
 
     /**
@@ -12,11 +12,11 @@ class RawIgcReader extends AbstractIgcReader
     public $filename;
 
 
-    public function getList()
+    public function getInputList()
     {
 
         $this->loadData();
-        return $this->list;
+        return $this->inputList;
 
     }
 

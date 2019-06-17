@@ -5,11 +5,13 @@ namespace Nemundo\Igc\Reader;
 
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 
-abstract class AbstractIgcReader extends AbstractRawIgcReader
+class FirstLastRawIgcReader extends AbstractRawIgcReader
 {
 
 
+
     protected function getCoordinateFromItem($number) {
+
 
         $item = $this->inputList[$number];
 
@@ -23,12 +25,34 @@ abstract class AbstractIgcReader extends AbstractRawIgcReader
     }
 
 
-    protected function getCoordinateItemCount() {
+    public function getTakeoff() {
 
-        $count = sizeof($this->inputList);
-        return $count;
+
+
+        $takeoff = $this->getCoordinateFromItem(0);
+        return $takeoff;
+
 
     }
+
+
+    public function getLanding() {
+
+
+
+
+    }
+
+
+
+    public function removeBetween() {
+
+
+
+
+    }
+
+
 
 
 

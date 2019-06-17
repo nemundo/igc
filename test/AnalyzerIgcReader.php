@@ -9,11 +9,27 @@ require __DIR__ . '/../../../config.php';
 $filename = 'C:\Data\Corrupt Igc\2019-05-23-XCT-AMA-03.igc';
 
 
-$kml = new \Nemundo\Geo\Kml\Document\KmlDocument();
+//$kml = new \Nemundo\Geo\Kml\Document\KmlDocument();
 
 
-$reader = new \Nemundo\Igc\Reader\AnalyzerIgcReader();
+$reader = new \Nemundo\Igc\Reader\IgcReader();
 $reader->filename = $filename;
+
+$anaylzer = new \Nemundo\Igc\Analyzer\TrackLengthAnalyzer($reader);
+(new \Nemundo\Core\Debug\Debug())->write($anaylzer->getTrackLength());
+
+
+/*
+
+
+$marker = new \Nemundo\Geo\Kml\Object\KmlMarker($kml);
+$marker->coordinate = $reader->getTakeoff();
+
+
+
+$marker = new \Nemundo\Geo\Kml\Object\KmlMarker($kml);
+$marker->coordinate = $reader->getLanding();
+
 
 /*
 $line = new \Nemundo\Geo\Kml\Object\KmlLine($kml);
@@ -22,6 +38,8 @@ foreach ($reader->getGeoCoordinateList() as $coordinate) {
     $line->addPoint($coordinate);
 }*/
 
+
+/*
 $line = new \Nemundo\Geo\Kml\Object\KmlLine($kml);
 $line->label = 'Cleaned Line';
 foreach ($reader->getCleanedGeoCoordinateList() as $coordinate) {
@@ -30,6 +48,16 @@ foreach ($reader->getCleanedGeoCoordinateList() as $coordinate) {
 }
 
 
+
+
+
+
+//(new \Nemundo\Core\Debug\Debug())->write($reader->getKmlCoordinate());
+
+
+
+
+
 /*
 $kml = new \Nemundo\Geo\Kml\Document\KmlDocument();
 
@@ -46,4 +74,4 @@ foreach ($reader->getCleanedGeoCoordinateList() as $coordinate) {
 }*/
 
 
-$kml->render();
+//$kml->render();

@@ -17,7 +17,7 @@ use Nemundo\Core\Type\Text\Text;
  */
 // IgcCoordinateReader
 
-class IgcReader extends AbstractBase  // AbstractDataSource
+class __IgcReader extends AbstractBase  // AbstractDataSource
 {
 
     /**

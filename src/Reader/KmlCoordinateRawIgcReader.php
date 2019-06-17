@@ -3,7 +3,7 @@
 namespace Nemundo\Igc\Reader;
 
 
-class KmlCoordinateIgcReader extends AbstractIgcReader
+class KmlCoordinateRawIgcReader extends AbstractRawIgcReader
 {
 
 
@@ -13,7 +13,7 @@ class KmlCoordinateIgcReader extends AbstractIgcReader
         $content = '';
 
         $this->loadData();
-        foreach ($this->list as $item) {
+        foreach ($this->inputList as $item) {
             $content .= $item['lon'] . ',' . $item['lat'] . ',' . $item['alt'] . PHP_EOL;
         }
 

@@ -7,8 +7,40 @@ use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Igc\Coordinate\IgcGeoCoordinateAltitude;
 
-class AnalyzerIgcReader extends AbstractIgcReader
+class IgcReader extends AbstractIgcReader
 {
+
+
+
+
+
+
+    public function getTakeoff() {
+
+
+        $this->loadData();
+
+        $takeoff = $this->getCoordinateFromItem(0);
+        return $takeoff;
+
+
+    }
+
+
+
+    public function getLanding() {
+
+
+        $this->loadData();
+
+        $takeoff = $this->getCoordinateFromItem($this->getCoordinateItemCount()-1);
+        return $takeoff;
+
+
+    }
+
+
+
 
 
 
@@ -20,7 +52,7 @@ class AnalyzerIgcReader extends AbstractIgcReader
         /** @var GeoCoordinateAltitude[] $list */
         $list = [];
 
-        foreach ($this->getList() as $item) {
+        foreach ($this->getInputList() as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -49,7 +81,7 @@ class AnalyzerIgcReader extends AbstractIgcReader
         /** @var IgcGeoCoordinateAltitude[] $list */
         $list = [];
 
-        foreach ($this->getList() as $item) {
+        foreach ($this->getInputList() as $item) {
 
             $coordinate = new IgcGeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -136,7 +168,7 @@ class AnalyzerIgcReader extends AbstractIgcReader
         /** @var GeoCoordinateAltitude[] $list */
         $list = [];
 
-        foreach ($this->getList() as $item) {
+        foreach ($this->getInputList() as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -158,7 +190,7 @@ class AnalyzerIgcReader extends AbstractIgcReader
         /** @var GeoCoordinateAltitude[] $list */
         $list = [];
 
-        foreach ($this->getList() as $item) {
+        foreach ($this->getInputList() as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -173,5 +205,20 @@ class AnalyzerIgcReader extends AbstractIgcReader
 
     }
 
+
+
+    public function getKmlCoordinate()
+    {
+
+
+        $content = '';
+
+        foreach ($this->getInputList() as $item) {
+            $content .= $item['lon'] . ',' . $item['lat'] . ',' . $item['alt'] . PHP_EOL;
+        }
+
+        return $content;
+
+    }
 
 }

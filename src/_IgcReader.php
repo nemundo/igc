@@ -168,7 +168,6 @@ class _IgcReader extends AbstractDataSource
                                  (new Debug())->write($verticalSpeed);
                              }*/
 
-                            if (($verticalSpeed < 15) && ($verticalSpeed > -15)) {
 
                                 $altitudePrevious = $altitudeGps;
                                 $timePrevious = $time;
