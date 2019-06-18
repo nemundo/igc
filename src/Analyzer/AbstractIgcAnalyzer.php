@@ -5,19 +5,26 @@ namespace Nemundo\Igc\Analyzer;
 
 use Nemundo\Core\Base\AbstractBase;
 
+use Nemundo\Igc\File\IgcFile;
 use Nemundo\Igc\Reader\AbstractIgcReader;
+use Nemundo\Igc\Reader\IgcReader;
+use Nemundo\Igc\Source\AbstractCoordinateSource;
+use Nemundo\Igc\Source\AbstractSource;
+use Nemundo\Igc\Source\LoadSourceTrait;
 
-class AbstractIgcAnalyzer extends AbstractBase
+abstract class AbstractIgcAnalyzer extends AbstractBase  // AbstractSource   // AbstractCoordinateSource  // AbstractBase
 {
 
-    /**
-     * @var IgcReader
-     */
-    protected $igcReader;
+    use LoadSourceTrait;
 
-    public function __construct(AbstractIgcReader $igcReader)
+    /**
+     * @var AbstractCoordinateSource
+     */
+   // protected $source;
+/*
+    public function __construct(AbstractCoordinateSource $source)
     {
-        $this->igcReader = $igcReader;
-    }
+        $this->source = $source;
+    }*/
 
 }

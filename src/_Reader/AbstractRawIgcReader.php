@@ -54,10 +54,10 @@ abstract class AbstractRawIgcReader extends AbstractBase  // AbstractDataSource
     private $lineList = [];
 
 
-    public function getFlightDate()
+    protected function loadProperty()
     {
 
-        $this->loadData();
+        //$this->loadData();
 
         $date = new Date();
 
@@ -201,6 +201,8 @@ abstract class AbstractRawIgcReader extends AbstractBase  // AbstractDataSource
             }
 
             fclose($file);
+
+            $this->loadProperty();
 
             $this->loaded = true;
 

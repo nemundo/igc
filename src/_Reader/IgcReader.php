@@ -10,11 +10,11 @@ use Nemundo\Igc\Coordinate\IgcGeoCoordinateAltitude;
 class IgcReader extends AbstractIgcReader
 {
 
+    public $filename;
 
 
 
-
-
+/*
     public function getTakeoff() {
 
 
@@ -37,7 +37,7 @@ class IgcReader extends AbstractIgcReader
         return $takeoff;
 
 
-    }
+    }*/
 
 
 
@@ -48,11 +48,20 @@ class IgcReader extends AbstractIgcReader
     public function getGeoCoordinateList()
     {
 
+        // tmp List
+
+
+
 
         /** @var GeoCoordinateAltitude[] $list */
         $list = [];
 
-        foreach ($this->getInputList() as $item) {
+
+        $reader = new RawIgcReader();
+        $reader->filename=$this->filename;
+
+//        foreach ($this->getInputList() as $item) {
+            foreach ($reader->getInputList() as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -121,11 +130,12 @@ class IgcReader extends AbstractIgcReader
     }
 
 
+    /*
     public function getCleanedGeoCoordinateList()
     {
 
         /** @var GeoCoordinateAltitude[] $list */
-        $list = [];
+    /*    $list = [];
 
         $hideCoordinate = false;
         $hideCoordinateCount=null;
@@ -166,7 +176,7 @@ class IgcReader extends AbstractIgcReader
 
 
         /** @var GeoCoordinateAltitude[] $list */
-        $list = [];
+     /*   $list = [];
 
         foreach ($this->getInputList() as $item) {
 
@@ -188,7 +198,7 @@ class IgcReader extends AbstractIgcReader
     {
 
         /** @var GeoCoordinateAltitude[] $list */
-        $list = [];
+     /*   $list = [];
 
         foreach ($this->getInputList() as $item) {
 
@@ -219,6 +229,6 @@ class IgcReader extends AbstractIgcReader
 
         return $content;
 
-    }
+    }*/
 
 }

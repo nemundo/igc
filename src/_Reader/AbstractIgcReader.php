@@ -4,8 +4,9 @@ namespace Nemundo\Igc\Reader;
 
 
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
+use Nemundo\Igc\Source\AbstractCoordinateSource;
 
-abstract class AbstractIgcReader extends AbstractRawIgcReader
+abstract class AbstractIgcReader extends AbstractCoordinateSource  //  AbstractRawIgcReader
 {
 
 

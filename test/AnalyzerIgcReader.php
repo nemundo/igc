@@ -16,7 +16,8 @@ $reader = new \Nemundo\Igc\Reader\IgcReader();
 $reader->filename = $filename;
 
 $anaylzer = new \Nemundo\Igc\Analyzer\TrackLengthAnalyzer($reader);
-(new \Nemundo\Core\Debug\Debug())->write($anaylzer->getTrackLength());
+(new \Nemundo\Core\Debug\Debug())->write('Track Length: '. $anaylzer->getTrackLength());
+(new \Nemundo\Core\Debug\Debug())->write((new \Nemundo\Igc\Analyzer\ThermalKml($reader))->getKml());
 
 
 /*
