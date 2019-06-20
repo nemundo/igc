@@ -90,7 +90,10 @@ class IgcFile extends AbstractSource
 
         foreach ($this->lineList as $line) {
 
-            $value = $this->getValue($line, 'HFDTEDATE:');
+
+            $dateKey = 'HFDTEDATE:';
+
+            $value = $this->getValue($line, $dateKey);
             if ($value !== null) {
 
                 //(new Debug())->write('Datum '.$value);
@@ -111,13 +114,24 @@ class IgcFile extends AbstractSource
 
 
             /*
+             *
+             * HFDTE140318*/
+
+
             $value =$this->getValue($line,'HFDTE');
             if ($value!==null) {
                 //(new Debug())->write('CHF');
+
+                if (!$this->hasValue($line, $dateKey)) {
+
+               //if ( //$value = $this->getValue($line, 'HFDTEDATE:');
+
                 $lineText = new Text($line);
                 $dateText = '20' . $lineText->getSubstring(9, 2) . '-' . $lineText->getSubstring(7, 2) . '-' . $lineText->getSubstring(5, 2);
                 $this->date = new Date($dateText);
-            }*/
+                }
+
+            }
 
 
 
@@ -144,11 +158,24 @@ class IgcFile extends AbstractSource
     }
 
 
+    protected function hasValue($line, $key) {
+
+$value = false;
+        if (strpos($line, $key) === 0) {
+        $value = true;
+        }
+
+        return $value;
+
+    }
+
+
     protected function getValue($line, $key)
     {
 
         $value = null;
-        if (strpos($line, $key) === 0) {
+        //if (strpos($line, $key) === 0) {
+        if ($this->hasValue($line, $key)) {
             $value = substr($line, strlen($key));
         }
 
