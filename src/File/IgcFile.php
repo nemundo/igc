@@ -4,16 +4,20 @@ namespace Nemundo\Igc\File;
 
 
 use Nemundo\Core\Base\AbstractBase;
+use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Core\Type\Text\Text;
 use Nemundo\Igc\Source\AbstractCoordinateSource;
 use Nemundo\Igc\Source\AbstractSource;
 
-class IgcFile extends AbstractSource  // AbstractCoordinateSource
+class IgcFile extends AbstractSource
 {
 
 
+    /**
+     * @var string
+     */
     private $filename;
 
 
@@ -22,29 +26,20 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
      */
      public $date;
 
-
     /**
      * @var string
      */
-    //public $filename;
-
-
     public $pilot;
-
-
-    //private $line;
 
     /**
      * @var string[]
      */
     protected $inputList = [];
 
-
     /**
      * @var string[]
      */
     protected $outputList = [];
-
 
     /**
      * @var bool
@@ -64,11 +59,6 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
     }
 
 
-
-
-
-
-
     public function getGeoCoordinateList()
     {
 
@@ -80,11 +70,7 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
         $list = [];
 
 
-        //$reader = new RawIgcReader();
-        //$reader->filename=$this->filename;
-
         foreach ($this->getInputList() as $item) {
-//        foreach ($reader->getInputList() as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
@@ -105,8 +91,6 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
 
     protected function loadProperty()
     {
-
-        //$this->loadData();
 
         $this->date = new Date();
 
@@ -134,7 +118,11 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
 
         }
 
-        //return $date;
+
+        if ($this->date->isNull()) {
+            (new LogMessage())->writeError('No valid Date. Filename: '.$this->filename);
+        }
+
 
     }
 
@@ -185,7 +173,6 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
 
                     if (is_numeric($latDegree) && is_numeric($latMinute) && is_numeric($lonDegree) && is_numeric($lonMinute)) {
 
-
                         $lat = $latDegree + ($latMinute / 60);
                         if ($latDirection == 'S') {
                             $lat = $lat * -1;
@@ -215,8 +202,7 @@ class IgcFile extends AbstractSource  // AbstractCoordinateSource
 
                     } else {
 
-
-                        (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $filename);
+                        (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
 
 
                         /*(new Debug())->write($line);
