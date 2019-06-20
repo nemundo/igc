@@ -3,12 +3,10 @@
 namespace Nemundo\Igc\File;
 
 
-use Nemundo\Core\Base\AbstractBase;
 use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Core\Type\Text\Text;
-use Nemundo\Igc\Source\AbstractCoordinateSource;
 use Nemundo\Igc\Source\AbstractSource;
 
 class IgcFile extends AbstractSource
@@ -24,7 +22,7 @@ class IgcFile extends AbstractSource
     /**
      * @var Date
      */
-     public $date;
+    public $date;
 
     /**
      * @var string
@@ -49,12 +47,12 @@ class IgcFile extends AbstractSource
     private $lineList = [];
 
 
-
     public function __construct($filename)
     {
 
         $this->filename = $filename;
         $this->loadData();
+        $this->loadProperty();
 
     }
 
@@ -63,7 +61,6 @@ class IgcFile extends AbstractSource
     {
 
         // tmp List
-
 
 
         /** @var GeoCoordinateAltitude[] $list */
@@ -86,9 +83,6 @@ class IgcFile extends AbstractSource
     }
 
 
-
-
-
     protected function loadProperty()
     {
 
@@ -96,31 +90,54 @@ class IgcFile extends AbstractSource
 
         foreach ($this->lineList as $line) {
 
-            $value =$this->getValue($line,'HFDTEDATE:');
-            if ($value!==null) {
+            $value = $this->getValue($line, 'HFDTEDATE:');
+            if ($value !== null) {
+
+                //(new Debug())->write('Datum '.$value);
+
                 $lineText = new Text($line);
                 $dateText = '20' . $lineText->getSubstring(14, 2) . '-' . $lineText->getSubstring(12, 2) . '-' . $lineText->getSubstring(10, 2);
 
+                //(new Debug())->write('Datum '.$dateText);
+
+
                 $this->date = new Date($dateText);
+
+
+                //(new Debug())->write('Datum2: '.$this->date->getIsoDateFormat());
+
+
             }
 
+
+            /*
             $value =$this->getValue($line,'HFDTE');
             if ($value!==null) {
+                //(new Debug())->write('CHF');
                 $lineText = new Text($line);
                 $dateText = '20' . $lineText->getSubstring(9, 2) . '-' . $lineText->getSubstring(7, 2) . '-' . $lineText->getSubstring(5, 2);
                 $this->date = new Date($dateText);
-            }
+            }*/
+
+
 
             $value = $this->getValue($line, 'HFPLTPILOT:');
             if ($value !== null) {
                 $this->pilot = $value;
             }
 
+            $value = $this->getValue($line, 'HOPLTPILOT:');
+            if ($value !== null) {
+                $this->pilot = $value;
+            }
+
+
+
         }
 
 
         if ($this->date->isNull()) {
-            (new LogMessage())->writeError('No valid Date. Filename: '.$this->filename);
+            (new LogMessage())->writeError('No valid Date. Filename: ' . $this->filename);
         }
 
 
@@ -131,7 +148,7 @@ class IgcFile extends AbstractSource
     {
 
         $value = null;
-        if (strpos($line,$key) === 0) {
+        if (strpos($line, $key) === 0) {
             $value = substr($line, strlen($key));
         }
 
@@ -152,88 +169,85 @@ class IgcFile extends AbstractSource
     protected function loadData()
     {
 
-        if (!$this->loaded) {
+        //if (!$this->loaded) {
 
-            $file = fopen($this->filename, 'r');
-            while (($line = fgets($file)) !== false) {
-
-
-                $this->lineList[] = $line;
-
-                if ($line[0] == 'B') {
-
-                    $latDegree = substr($line, 7, 2);
-                    $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
-                    $latDirection = substr($line, 14, 1);
-
-                    $lonDegree = substr($line, 15, 3);
-                    $lonMinute = substr($line, 18, 2) . '.' . substr($line, 20, 3);
-                    $lonDirection = substr($line, 23, 1);
+        $file = fopen($this->filename, 'r');
+        while (($line = fgets($file)) !== false) {
 
 
-                    if (is_numeric($latDegree) && is_numeric($latMinute) && is_numeric($lonDegree) && is_numeric($lonMinute)) {
+            $this->lineList[] = $line;
 
-                        $lat = $latDegree + ($latMinute / 60);
-                        if ($latDirection == 'S') {
-                            $lat = $lat * -1;
-                        }
-                        $lat = round($lat, 5);
+            if ($line[0] == 'B') {
 
+                $latDegree = substr($line, 7, 2);
+                $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
+                $latDirection = substr($line, 14, 1);
 
-                        $lon = $lonDegree + ($lonMinute / 60);
-                        if ($lonDirection == 'W') {
-                            $lon = $lon * -1;
-                        }
-                        $lon = round($lon, 5);
-
-                        $altitudeGps = substr($line, 30, 5) * 1;
-
-                        $hour = (int)substr($line, 1, 2);
-                        $minute = (int)substr($line, 3, 2);
-                        $second = (int)substr($line, 5, 2);
-
-                        $item = [];
-                        $item['lat'] = $lat;
-                        $item['lon'] = $lon;
-                        $item['alt'] = $altitudeGps;
-                        $item['time'] = $hour . ':' . $minute . ':' . $second;
-
-                        $this->inputList[] = $item;
-
-                    } else {
-
-                        (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
+                $lonDegree = substr($line, 15, 3);
+                $lonMinute = substr($line, 18, 2) . '.' . substr($line, 20, 3);
+                $lonDirection = substr($line, 23, 1);
 
 
-                        /*(new Debug())->write($line);
+                if (is_numeric($latDegree) && is_numeric($latMinute) && is_numeric($lonDegree) && is_numeric($lonMinute)) {
 
-
-                        (new Debug())->write($latDegree);
-                        (new Debug())->write($latMinute);
-                        (new Debug())->write($lonDegree);
-                        (new Debug())->write($lonMinute);
-                        (new Debug())->write();
-                        (new Debug())->write();
-                        (new Debug())->write();*/
-
-
+                    $lat = $latDegree + ($latMinute / 60);
+                    if ($latDirection == 'S') {
+                        $lat = $lat * -1;
                     }
+                    $lat = round($lat, 5);
+
+
+                    $lon = $lonDegree + ($lonMinute / 60);
+                    if ($lonDirection == 'W') {
+                        $lon = $lon * -1;
+                    }
+                    $lon = round($lon, 5);
+
+                    $altitudeGps = substr($line, 30, 5) * 1;
+
+                    $hour = (int)substr($line, 1, 2);
+                    $minute = (int)substr($line, 3, 2);
+                    $second = (int)substr($line, 5, 2);
+
+                    $item = [];
+                    $item['lat'] = $lat;
+                    $item['lon'] = $lon;
+                    $item['alt'] = $altitudeGps;
+                    $item['time'] = $hour . ':' . $minute . ':' . $second;
+
+                    $this->inputList[] = $item;
+
+                } else {
+
+                    (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
+
+
+                    /*(new Debug())->write($line);
+
+
+                    (new Debug())->write($latDegree);
+                    (new Debug())->write($latMinute);
+                    (new Debug())->write($lonDegree);
+                    (new Debug())->write($lonMinute);
+                    (new Debug())->write();
+                    (new Debug())->write();
+                    (new Debug())->write();*/
+
+
                 }
-
             }
-
-            fclose($file);
-
-            $this->loadProperty();
-
-            $this->loaded = true;
 
         }
 
+        fclose($file);
+
+        //$this->loadProperty();
+
+        //$this->loaded = true;
+
+        //}
+
     }
-
-
-
 
 
 }
