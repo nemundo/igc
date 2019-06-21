@@ -3,6 +3,7 @@
 namespace Nemundo\Igc\File;
 
 
+use Nemundo\App\Performance\PerformanceStopwatch;
 use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
@@ -46,15 +47,32 @@ class IgcFile extends AbstractSource
 
     private $lineList = [];
 
+    private $propertyLineList = [];
 
-    public function __construct($filename)
+
+    public function __construct($filename, $loadProperty = true)
     {
 
         $this->filename = $filename;
         $this->loadData();
-        $this->loadProperty();
+        /*if ($loadProperty) {
+         $this->loadProperty();
+        }*/
+    }
+
+
+
+    public function getFlightDate() {
 
     }
+
+
+    public function getPilot() {
+
+
+
+    }
+
 
 
     public function getGeoCoordinateList()
@@ -83,12 +101,46 @@ class IgcFile extends AbstractSource
     }
 
 
+    public function getGeoCoordinateCount()
+    {
+        $count = sizeof($this->inputList);
+        return $count;
+
+        // TODO: Implement getGeoCoordinateCount() method.
+    }
+
+
+    public function getGeoCoordinateByNumer($number)
+    {
+
+        $item = $this->inputList[$number];
+
+            $coordinate = new GeoCoordinateAltitude();
+            $coordinate->latitude = $item['lat'];
+            $coordinate->longitude = $item['lon'];
+            $coordinate->altitude = $item['alt'];
+
+          return $coordinate;
+
+    }
+
+
+//    abstract public function getGeoCoordinateCount();
+
+//    abstract public function getGeoCoordinateByNumer($number);
+
+
+
+
     protected function loadProperty()
     {
 
+
+        // reading until first B Record
+
         $this->date = new Date();
 
-        foreach ($this->lineList as $line) {
+        foreach ($this->propertyLineList as $line) {
 
 
             $dateKey = 'HFDTEDATE:';
@@ -202,9 +254,13 @@ $value = false;
         while (($line = fgets($file)) !== false) {
 
 
+
             $this->lineList[] = $line;
 
+
+
             if ($line[0] == 'B') {
+
 
                 $latDegree = substr($line, 7, 2);
                 $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
@@ -215,7 +271,54 @@ $value = false;
                 $lonDirection = substr($line, 23, 1);
 
 
+                $lat = $latDegree + ($latMinute / 60);
+                if ($latDirection == 'S') {
+                    $lat = $lat * -1;
+                }
+                $lat = round($lat, 5);
+
+
+                $lon = $lonDegree + ($lonMinute / 60);
+                if ($lonDirection == 'W') {
+                    $lon = $lon * -1;
+                }
+                $lon = round($lon, 5);
+
+                $altitudeGps = substr($line, 30, 5) * 1;
+
+                $hour = (int)substr($line, 1, 2);
+                $minute = (int)substr($line, 3, 2);
+                $second = (int)substr($line, 5, 2);
+
+
+                $item = [];
+                $item['lat'] = $lat;
+                $item['lon'] = $lon;
+                $item['alt'] = $altitudeGps;
+                $item['time'] = $hour . ':' . $minute . ':' . $second;
+
+                $this->inputList[] = $item;
+
+            }
+
+/*
+                $performance = new PerformanceStopwatch('CoordRead');
+
+                $latDegree = substr($line, 7, 2);
+                $latMinute = substr($line, 9, 2) . '.' . substr($line, 11, 3);
+                $latDirection = substr($line, 14, 1);
+
+                $lonDegree = substr($line, 15, 3);
+                $lonMinute = substr($line, 18, 2) . '.' . substr($line, 20, 3);
+                $lonDirection = substr($line, 23, 1);
+
+                $performance->stopStopwatch();
+
+                $performance = new PerformanceStopwatch('CoordCalc');
+
                 if (is_numeric($latDegree) && is_numeric($latMinute) && is_numeric($lonDegree) && is_numeric($lonMinute)) {
+
+
 
                     $lat = $latDegree + ($latMinute / 60);
                     if ($latDirection == 'S') {
@@ -244,25 +347,21 @@ $value = false;
 
                     $this->inputList[] = $item;
 
+                    $performance->stopStopwatch();
+
                 } else {
 
                     (new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
 
-
-                    /*(new Debug())->write($line);
-
-
-                    (new Debug())->write($latDegree);
-                    (new Debug())->write($latMinute);
-                    (new Debug())->write($lonDegree);
-                    (new Debug())->write($lonMinute);
-                    (new Debug())->write();
-                    (new Debug())->write();
-                    (new Debug())->write();*/
-
-
                 }
-            }
+
+                $performance->stopStopwatch();
+
+            } else {
+
+                $this->propertyLineList[] = $line;
+
+            }*/
 
         }
 
