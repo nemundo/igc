@@ -48,9 +48,10 @@ class AltitudeIgcAnalyzer extends AbstractIgcAnalyzer
     }
 
 
+    /*
     public function getGeoCoordinateList()
     {
         // TODO: Implement getGeoCoordinateList() method.
-    }
+    }*/
 
 }

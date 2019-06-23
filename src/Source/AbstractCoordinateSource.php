@@ -8,6 +8,24 @@ abstract class AbstractCoordinateSource extends AbstractSource
 
     use LoadSourceTrait;
 
+
+
+    public function getGeoCoordinateCount()
+    {
+        // TODO: Implement getGeoCoordinateCount() method.
+    }
+
+
+    public function getGeoCoordinateByNumer($number)
+    {
+        // TODO: Implement getGeoCoordinateByNumer() method.
+    }
+
+
+
+
+
+
     /**
      * @var AbstractSource
      */

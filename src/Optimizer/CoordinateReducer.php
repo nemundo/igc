@@ -70,4 +70,8 @@ class CoordinateReducer extends AbstractCoordinateSource  // AbstractBase
 
     }
 
+
+
+
+
 }

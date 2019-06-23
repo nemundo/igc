@@ -6,6 +6,7 @@ namespace Nemundo\Igc\File;
 use Nemundo\Core\Debug\Debug;
 use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
+use Nemundo\Core\Type\DateTime\Time;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Core\Type\Text\Text;
 use Nemundo\Igc\Source\AbstractSource;
@@ -30,9 +31,19 @@ class IgcFile extends AbstractSource
     public $pilot;
 
     /**
+     * @var string
+     */
+    public $glider;
+
+    /**
      * @var string[][]
      */
     protected $inputList = [];
+
+    /**
+     * @var GeoCoordinateAltitude[]
+     */
+protected $geoCoordinateList;
 
     /**
      * @var string[]
@@ -54,9 +65,9 @@ class IgcFile extends AbstractSource
 
         $this->filename = $filename;
         $this->loadData();
-        if ($loadProperty) {
+        //if ($loadProperty) {
             $this->loadProperty();
-        }
+        //}
 
     }
 
@@ -79,23 +90,27 @@ class IgcFile extends AbstractSource
 
         // tmp List
 
+        if ($this->geoCoordinateList ==  null) {
 
         /** @var GeoCoordinateAltitude[] $list */
-        $list = [];
+        //$list = [];
 
+            $this->geoCoordinateList=[];
 
-        foreach ($this->getInputList() as $item) {
+        foreach ($this->inputList as $item) {
 
             $coordinate = new GeoCoordinateAltitude();
             $coordinate->latitude = $item['lat'];
             $coordinate->longitude = $item['lon'];
             $coordinate->altitude = $item['alt'];
 
-            $list[] = $coordinate;
+            $this->geoCoordinateList[] = $coordinate;
 
         }
 
-        return $list;
+        }
+
+        return $this->geoCoordinateList;
 
     }
 
@@ -133,6 +148,18 @@ class IgcFile extends AbstractSource
     }
 
 
+    public function getTimeByNumber($number)
+    {
+
+        $item = $this->inputList[$number];
+        $time = new Time($item['time']);
+
+        return $time;
+
+    }
+
+
+
 //    abstract public function getGeoCoordinateCount();
 
 //    abstract public function getGeoCoordinateByNumer($number);
@@ -145,6 +172,9 @@ class IgcFile extends AbstractSource
         // reading until first B Record
 
         $this->date = new Date();
+
+        //(new Debug())->write($this->propertyLineList);
+        //exit;
 
         foreach ($this->propertyLineList as $line) {
 
@@ -173,13 +203,26 @@ class IgcFile extends AbstractSource
 
             $value = $this->getValue($line, 'HFPLTPILOT:');
             if ($value !== null) {
-                $this->pilot = $value;
+                $this->pilot = (new Text($value))->utf8Encode()->getValue();  // $value;
             }
 
             $value = $this->getValue($line, 'HOPLTPILOT:');
             if ($value !== null) {
-                $this->pilot = $value;
+                $this->pilot = (new Text($value))->utf8Encode()->getValue();
+                // $this->pilot = $value;
             }
+
+
+
+            $value = $this->getValue($line, 'HPGTYGLIDERTYPE:');
+            if ($value !== null) {
+                $this->glider = (new Text($value))->utf8Encode()->getValue();
+            }
+
+
+            //HPGTYGLIDERTYPE:Ozone Enzo 3
+
+
 
         }
 
@@ -218,13 +261,14 @@ class IgcFile extends AbstractSource
     }
 
 
+    /*
     protected function getInputList()
     {
 
-        $this->loadData();
+        //$this->loadData();
         return $this->inputList;
 
-    }
+    }*/
 
 
     protected function loadData()
@@ -233,7 +277,7 @@ class IgcFile extends AbstractSource
         $file = fopen($this->filename, 'r');
         while (($line = fgets($file)) !== false) {
 
-            $this->lineList[] = $line;
+            //$this->lineList[] = $line;
 
             if ($line[0] == 'B') {
 
@@ -279,6 +323,10 @@ class IgcFile extends AbstractSource
                     //(new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
 
                 }
+
+            } else {
+
+                $this->propertyLineList[] = $line;
 
             }
 
