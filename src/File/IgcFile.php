@@ -60,7 +60,7 @@ protected $geoCoordinateList;
     private $propertyLineList = [];
 
 
-    public function __construct($filename, $loadProperty = true)
+    public function __construct($filename)  //, $loadProperty = true)
     {
 
         $this->filename = $filename;
@@ -72,6 +72,7 @@ protected $geoCoordinateList;
     }
 
 
+    /*
     public function getFlightDate()
     {
 
@@ -82,7 +83,7 @@ protected $geoCoordinateList;
     {
 
 
-    }
+    }*/
 
 
     public function getGeoCoordinateList()
