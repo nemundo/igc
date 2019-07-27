@@ -4,7 +4,6 @@ namespace Nemundo\Igc\File;
 
 
 use Nemundo\Core\Debug\Debug;
-use Nemundo\Core\Log\LogMessage;
 use Nemundo\Core\Type\DateTime\Date;
 use Nemundo\Core\Type\DateTime\Time;
 use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
@@ -18,6 +17,11 @@ class IgcFile extends AbstractSource
      * @var string
      */
     private $filename;
+
+    /**
+     * @var bool
+     */
+    private $valid = true;
 
 
     /**
@@ -43,7 +47,7 @@ class IgcFile extends AbstractSource
     /**
      * @var GeoCoordinateAltitude[]
      */
-protected $geoCoordinateList;
+    protected $geoCoordinateList;
 
     /**
      * @var string[]
@@ -60,54 +64,39 @@ protected $geoCoordinateList;
     private $propertyLineList = [];
 
 
-    public function __construct($filename)  //, $loadProperty = true)
+    public function __construct($filename)
     {
 
         $this->filename = $filename;
         $this->loadData();
-        //if ($loadProperty) {
-            $this->loadProperty();
-        //}
+        $this->loadProperty();
 
     }
 
 
-    /*
-    public function getFlightDate()
+    public function isValid()
     {
-
+        return $this->valid;
     }
-
-
-    public function getPilot()
-    {
-
-
-    }*/
 
 
     public function getGeoCoordinateList()
     {
 
-        // tmp List
+        if ($this->geoCoordinateList == null) {
 
-        if ($this->geoCoordinateList ==  null) {
+            $this->geoCoordinateList = [];
 
-        /** @var GeoCoordinateAltitude[] $list */
-        //$list = [];
+            foreach ($this->inputList as $item) {
 
-            $this->geoCoordinateList=[];
+                $coordinate = new GeoCoordinateAltitude();
+                $coordinate->latitude = $item['lat'];
+                $coordinate->longitude = $item['lon'];
+                $coordinate->altitude = $item['alt'];
 
-        foreach ($this->inputList as $item) {
+                $this->geoCoordinateList[] = $coordinate;
 
-            $coordinate = new GeoCoordinateAltitude();
-            $coordinate->latitude = $item['lat'];
-            $coordinate->longitude = $item['lon'];
-            $coordinate->altitude = $item['alt'];
-
-            $this->geoCoordinateList[] = $coordinate;
-
-        }
+            }
 
         }
 
@@ -160,12 +149,6 @@ protected $geoCoordinateList;
     }
 
 
-
-//    abstract public function getGeoCoordinateCount();
-
-//    abstract public function getGeoCoordinateByNumer($number);
-
-
     protected function loadProperty()
     {
 
@@ -214,7 +197,6 @@ protected $geoCoordinateList;
             }
 
 
-
             $value = $this->getValue($line, 'HPGTYGLIDERTYPE:');
             if ($value !== null) {
                 $this->glider = (new Text($value))->utf8Encode()->getValue();
@@ -224,12 +206,12 @@ protected $geoCoordinateList;
             //HPGTYGLIDERTYPE:Ozone Enzo 3
 
 
-
         }
 
 
         if ($this->date->isNull()) {
-            (new LogMessage())->writeError('No valid Date. Filename: ' . $this->filename);
+            $this->valid = false;
+            //(new LogMessage())->writeError('No valid Date. Filename: ' . $this->filename);
         }
 
 
