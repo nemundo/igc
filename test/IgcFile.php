@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../../../config.php';
 
-$performance = new \Nemundo\App\Performance\PerformanceStopwatch('Igc');
+//$performance = new \Nemundo\App\Performance\PerformanceStopwatch('Igc');
 
 $filename = __DIR__ . '/igc/190331_NKN_01.igc';
 //$filename = 'C:\test\track.igc';
