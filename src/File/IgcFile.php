@@ -288,9 +288,10 @@ class IgcFile extends AbstractSource
                     $lon = round($lon, 5);
 
                     $altitudeGpsText = substr($line, 30, 5);
+                    $altitudeGpsText = ltrim($altitudeGpsText, '0');
 
                     if (!is_int($altitudeGpsText)) {
-                        (new Debug())->write('No valid Altitude. Value: '.$altitudeGpsText.' Filename: '.$this->filename);
+                        (new Debug())->write('No valid Altitude. Value: ' . $altitudeGpsText . ' Filename: ' . $this->filename);
                     }
                     $altitudeGps = (int)$altitudeGpsText;
                     //$altitudeGps = $altitudeGps*1;  //   substr($line, 30, 5) * 1;
