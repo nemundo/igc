@@ -287,7 +287,13 @@ class IgcFile extends AbstractSource
                     }
                     $lon = round($lon, 5);
 
-                    $altitudeGps = substr($line, 30, 5) * 1;
+                    $altitudeGpsText = substr($line, 30, 5);
+
+                    if (!is_int($altitudeGpsText)) {
+                        (new Debug())->write('No valid Altitude. Value: '.$altitudeGpsText.' Filename: '.$this->filename);
+                    }
+                    $altitudeGps = (int)$altitudeGpsText;
+                    //$altitudeGps = $altitudeGps*1;  //   substr($line, 30, 5) * 1;
 
                     $hour = (int)substr($line, 1, 2);
                     $minute = (int)substr($line, 3, 2);
