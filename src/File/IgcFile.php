@@ -23,7 +23,6 @@ class IgcFile extends AbstractSource
      */
     private $valid = true;
 
-
     /**
      * @var Date
      */
@@ -52,15 +51,18 @@ class IgcFile extends AbstractSource
     /**
      * @var string[]
      */
-    protected $outputList = [];
+    //protected $outputList = [];
 
     /**
      * @var bool
      */
-    private $loaded = false;
+    //private $loaded = false;
 
-    private $lineList = [];
+    //private $lineList = [];
 
+    /**
+     * @var string[]
+     */
     private $propertyLineList = [];
 
 
@@ -132,7 +134,6 @@ class IgcFile extends AbstractSource
 
         }
 
-
         return $coordinate;
 
     }
@@ -152,16 +153,9 @@ class IgcFile extends AbstractSource
     protected function loadProperty()
     {
 
-
-        // reading until first B Record
-
         $this->date = new Date();
 
-        //(new Debug())->write($this->propertyLineList);
-        //exit;
-
         foreach ($this->propertyLineList as $line) {
-
 
             $dateKey = 'HFDTEDATE:';
 
@@ -187,13 +181,12 @@ class IgcFile extends AbstractSource
 
             $value = $this->getValue($line, 'HFPLTPILOT:');
             if ($value !== null) {
-                $this->pilot = (new Text($value))->utf8Encode()->getValue();  // $value;
+                $this->pilot = (new Text($value))->utf8Encode()->getValue();
             }
 
             $value = $this->getValue($line, 'HOPLTPILOT:');
             if ($value !== null) {
                 $this->pilot = (new Text($value))->utf8Encode()->getValue();
-                // $this->pilot = $value;
             }
 
 
@@ -202,16 +195,10 @@ class IgcFile extends AbstractSource
                 $this->glider = (new Text($value))->utf8Encode()->getValue();
             }
 
-
-            //HPGTYGLIDERTYPE:Ozone Enzo 3
-
-
         }
-
 
         if ($this->date->isNull()) {
             $this->valid = false;
-            //(new LogMessage())->writeError('No valid Date. Filename: ' . $this->filename);
         }
 
 
@@ -244,23 +231,11 @@ class IgcFile extends AbstractSource
     }
 
 
-    /*
-    protected function getInputList()
-    {
-
-        //$this->loadData();
-        return $this->inputList;
-
-    }*/
-
-
     protected function loadData()
     {
 
         $file = fopen($this->filename, 'r');
         while (($line = fgets($file)) !== false) {
-
-            //$this->lineList[] = $line;
 
             if ($line[0] == 'B') {
 
@@ -289,11 +264,11 @@ class IgcFile extends AbstractSource
 
                     $altitudeGpsText = substr($line, 30, 5);
                     $altitudeGpsText = ltrim($altitudeGpsText, '0');
-
-                    if (!is_int($altitudeGpsText)) {
-                        (new Debug())->write('No valid Altitude. Value: ' . $altitudeGpsText . ' Filename: ' . $this->filename);
-                    }
                     $altitudeGps = (int)$altitudeGpsText;
+                    if (!is_int($altitudeGps)) {
+                        (new Debug())->write('No valid Altitude. Value: ' . $altitudeGps . ' Filename: ' . $this->filename);
+                    }
+                    //$altitudeGps = (int)$altitudeGpsText;
                     //$altitudeGps = $altitudeGps*1;  //   substr($line, 30, 5) * 1;
 
                     $hour = (int)substr($line, 1, 2);
@@ -308,11 +283,12 @@ class IgcFile extends AbstractSource
 
                     $this->inputList[] = $item;
 
-                } else {
+                }
+                /*else {
 
                     //(new LogMessage())->writeError('IgcReader2. Invalid Number. Filename: ' . $this->filename);
 
-                }
+                }*/
 
             } else {
 
