@@ -11,6 +11,8 @@ trait LoadSourceTrait
      */
     protected $source;
 
+    // IgcFile
+
     public function __construct(AbstractSource $source)
     {
         $this->source = $source;

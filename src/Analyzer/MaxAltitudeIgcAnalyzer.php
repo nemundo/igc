@@ -7,11 +7,11 @@ use Nemundo\Core\Type\Geo\GeoCoordinateAltitude;
 use Nemundo\Igc\Source\AbstractCoordinateSource;
 use Nemundo\Igc\Source\AbstractSource;
 
-class AltitudeIgcAnalyzer extends AbstractIgcAnalyzer
+class MaxAltitudeIgcAnalyzer extends AbstractIgcAnalyzer
 {
 
 
-    public $alitutdeHigh=0;
+    public $altitudeHigh=0;
 
     /**
      * @var GeoCoordinateAltitude
@@ -32,8 +32,8 @@ class AltitudeIgcAnalyzer extends AbstractIgcAnalyzer
         //$highestAlt = 0;
         $coordinateHigh = null;
         foreach ($this->source->getGeoCoordinateList() as $coordinate) {
-            if ($coordinate->altitude > $this->alitutdeHigh) {
-                $this->alitutdeHigh = $coordinate->altitude;
+            if ($coordinate->altitude > $this->altitudeHigh) {
+                $this->altitudeHigh = $coordinate->altitude;
                 $this->coordinateHigh = $coordinate;
             }
         }
@@ -44,6 +44,17 @@ class AltitudeIgcAnalyzer extends AbstractIgcAnalyzer
             $update->updateById($this->flightRow->id);
         }*/
 
+
+    }
+
+    public function getMaxAltitude() {
+        return $this->coordinateHigh->altitude;
+    }
+
+
+    public function getMaxCoordinate() {
+
+        return $this->coordinateHigh;
 
     }
 
