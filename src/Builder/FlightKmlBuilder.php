@@ -4,22 +4,13 @@
 namespace Nemundo\Igc\Builder;
 
 
-use Nemundo\Core\Base\AbstractBase;
-use Nemundo\Core\Debug\Debug;
 use Nemundo\Core\TextFile\Writer\TextFileWriter;
 use Nemundo\Igc\Analyzer\AbstractIgcAnalyzer;
-use Nemundo\Igc\File\IgcFile;
 use Nemundo\Igc\Optimizer\CoordinateReducer;
-use Paranautik\Xcontest\Cache\FlightKmlCache;
-use Paranautik\Xcontest\Cache\KmlCacheFilename;
-use Paranautik\Xcontest\Crawler\Filename\FlightCacheFilename;
-use Paranautik\Xcontest\Data\Flight\FlightRow;
-use Paranautik\Xcontest\Path\FlightKmlCachePath;
 
 
 class FlightKmlBuilder extends AbstractIgcAnalyzer
 {
-
 
 
     // build
@@ -33,10 +24,19 @@ class FlightKmlBuilder extends AbstractIgcAnalyzer
             ->createPath();*/
 
 
+        //$igc = new IgcFile( $filename);
+
+        $reducer = new CoordinateReducer($this->source);
+        $reducer->minHorizontalDistance = 200;
+        $reducer->minVerticalDistance = 20;
+
+        //$cache=new FlightKmlCache($reducer);
+        //$cache->import($flightRow);
 
 
         $content = '';
-        foreach ($this->source->getGeoCoordinateList() as $coordinate) {
+        //foreach ($this->source->getGeoCoordinateList() as $coordinate) {
+        foreach ($reducer->getGeoCoordinateList() as $coordinate) {
             $content .= $coordinate->longitude . ',' . $coordinate->latitude . ',' . $coordinate->altitude . PHP_EOL;
         }
 

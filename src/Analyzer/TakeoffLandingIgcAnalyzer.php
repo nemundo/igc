@@ -56,4 +56,13 @@ class TakeoffLandingIgcAnalyzer extends AbstractIgcAnalyzer
     }
 
 
+    public function getAirtimeInMinute() {
+
+        $minute = round($this->getAirtimeInSeconds()/60);
+        return $minute;
+
+
+    }
+
+
 }
