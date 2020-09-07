@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "nemundo/core": "^0.1.0"
+    "nemundo/core": "*"
   },
   "autoload": {
     "psr-4": {
