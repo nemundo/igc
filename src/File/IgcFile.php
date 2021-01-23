@@ -41,7 +41,7 @@ class IgcFile extends AbstractSource
     /**
      * @var string[][]
      */
-    protected $inputList = [];
+    public $inputList = [];
 
     /**
      * @var GeoCoordinateAltitude[]
